@@ -18,11 +18,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Neo4j.Driver.Exceptions;
+using Neo4j.Driver.Helpers;
 using Neo4j.Driver.Internal.result;
 
 namespace Neo4j.Driver
 {
-    public class Session : ISession
+    public class Session : ISession, ISessionAsync
     {
         private readonly IConnection _connection;
         private Transaction _transaction;
@@ -59,16 +60,37 @@ namespace Neo4j.Driver
             GC.SuppressFinalize(this);
         }
 
-        public ResultCursor Run(string statement, IDictionary<string, object> statementParameters = null)
+        public async Task<ResultCursor> RunAsync(string statement, IDictionary<string, object> statementParameters = null)
         {
             EnsureConnectionIsValid();
             var resultBuilder = new ResultBuilder(statement, statementParameters);
             _connection.Run(resultBuilder, statement, statementParameters);
             _connection.PullAll(resultBuilder);
-            _connection.Sync();
+            await _connection.SyncAsync();
 
             return resultBuilder.Build();
         }
+
+        public async Task<ITransaction> BeginTransactionAsync()
+        {
+            EnsureConnectionIsValid();
+            _transaction = new Transaction(_connection);
+            return _transaction;
+        }
+
+        public ResultCursor Run(string statement, IDictionary<string, object> statementParameters = null)
+        {
+            return AsyncHelpers.RunSync(() => RunAsync(statement, statementParameters));
+        }
+
+//            EnsureConnectionIsValid();
+//            var resultBuilder = new ResultBuilder(statement, statementParameters);
+//            _connection.Run(resultBuilder, statement, statementParameters);
+//            _connection.PullAll(resultBuilder);
+//            _connection.Sync();
+//
+//            return resultBuilder.Build();
+//        }
 
         public ITransaction BeginTransaction()
         {

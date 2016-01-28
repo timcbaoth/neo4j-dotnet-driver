@@ -16,6 +16,7 @@
 //  limitations under the License.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Sockets.Plugin.Abstractions;
 
 namespace Neo4j.Driver
@@ -73,7 +74,7 @@ namespace Neo4j.Driver
 
         public IOutputStream Flush()
         {
-            var hex = ToHexString(_buffer, 0, _pos);
+//            var hex = ToHexString(_buffer, 0, _pos);
             _tcpSocketClient.WriteStream.Write(_buffer, 0, _pos);
             _tcpSocketClient.WriteStream.Flush();
             _buffer = null;
@@ -129,6 +130,16 @@ namespace Neo4j.Driver
         private void WriteShort(short num, byte[] buffer, int pos)
         {
             _bitConverter.GetBytes(num).CopyTo(buffer, pos);
+        }
+
+        public async Task<IOutputStream> FlushAsync()
+        {
+            await _tcpSocketClient.WriteStream.WriteAsync(_buffer, 0, _pos).ConfigureAwait(false);
+            await _tcpSocketClient.WriteStream.FlushAsync().ConfigureAwait(false);
+            _buffer = null;
+            _pos = -1;
+            _chunkHeaderPosition = 0;
+            return this;
         }
     }
 }

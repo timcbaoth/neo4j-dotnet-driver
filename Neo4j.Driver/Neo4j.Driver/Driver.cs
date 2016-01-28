@@ -54,5 +54,10 @@ namespace Neo4j.Driver
         {
             return new Session(_url, _config);
         }
+
+        public ISessionAsync SessionAsync()
+        {
+            return Session() as ISessionAsync;
+        }
     }
 }

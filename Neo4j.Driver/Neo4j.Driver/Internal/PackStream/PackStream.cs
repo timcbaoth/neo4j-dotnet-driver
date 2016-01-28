@@ -18,6 +18,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Neo4j.Driver;
 
 namespace Neo4j.Driver
@@ -656,11 +657,13 @@ namespace Neo4j.Driver
     {
         void Write(IMessage message);
         void Flush();
+        Task FlushAsync();
     }
 
     public interface IReader
     {
 //        bool HasNext();
         void Read(IMessageResponseHandler responseHandler);
+        Task ReadAsync(IMessageResponseHandler responseHandler);
     }
 }

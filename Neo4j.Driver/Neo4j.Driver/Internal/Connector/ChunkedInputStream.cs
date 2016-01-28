@@ -16,6 +16,7 @@
 //  limitations under the License.
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Neo4j.Driver.Extensions;
 using Sockets.Plugin.Abstractions;
 
@@ -123,6 +124,20 @@ namespace Neo4j.Driver
                 return;
             }
             var numberOfbytesRead = _tcpSocketClient.ReadStream.Read(buffer);
+            if (numberOfbytesRead != buffer.Length)
+            {
+                //TODO: Convert to Neo4j Exception.
+                throw new InvalidOperationException($"Expect {buffer.Length}, but got {numberOfbytesRead}");
+            }
+        }
+
+        private async Task ReadSpecifiedSizeAsync(byte[] buffer)
+        {
+            if (buffer.Length == 0)
+            {
+                return;
+            }
+            var numberOfbytesRead = await _tcpSocketClient.ReadStream.ReadAsync(buffer);
             if (numberOfbytesRead != buffer.Length)
             {
                 //TODO: Convert to Neo4j Exception.

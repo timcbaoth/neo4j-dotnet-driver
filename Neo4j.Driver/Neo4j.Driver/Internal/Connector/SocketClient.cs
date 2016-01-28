@@ -67,6 +67,18 @@ namespace Neo4j.Driver
             IsOpen = false;
         }
 
+        public async Task SendAsync(IEnumerable<IMessage> messages, IMessageResponseHandler responseHandler)
+        {
+            foreach (var message in messages)
+            {
+                _writer.Write(message);
+            }
+
+            _writer.Flush();
+
+            Receive(responseHandler);
+        }
+
         public void Send(IEnumerable<IMessage> messages, IMessageResponseHandler responseHandler)
         {
             foreach (var message in messages)

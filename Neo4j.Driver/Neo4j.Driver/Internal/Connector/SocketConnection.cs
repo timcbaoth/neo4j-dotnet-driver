@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Neo4j.Driver.Exceptions;
 using Neo4j.Driver.Internal.messaging;
 using Neo4j.Driver.Internal.Messaging;
@@ -54,6 +55,23 @@ namespace Neo4j.Driver
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public async Task SyncAsync()
+        {
+            if (_messages.Count == 0)
+            {
+                return;
+            }
+
+            await _client.SendAsync(_messages, _messageHandler);
+            ClearQueue(); // clear sending queue
+
+            if (_messageHandler.HasError)
+            {
+                Enqueue(new ResetMessage());
+                throw _messageHandler.Error;
+            }
         }
 
         public void Sync()

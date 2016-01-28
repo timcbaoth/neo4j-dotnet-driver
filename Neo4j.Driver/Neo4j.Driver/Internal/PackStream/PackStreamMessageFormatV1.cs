@@ -20,6 +20,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Neo4j.Driver.Exceptions;
 using Neo4j.Driver.Internal;
 using Sockets.Plugin.Abstractions;
@@ -58,6 +59,31 @@ namespace Neo4j.Driver
             public void Read(IMessageResponseHandler responseHandler)
             {
                 _unpacker.UnpackStructHeader();
+                var type = _unpacker.UnpackStructSignature();
+
+                switch (type)
+                {
+                    case MSG_RECORD:
+                        UnpackRecordMessage(responseHandler);
+                        break;
+                    case MSG_SUCCESS:
+                        UnpackSuccessMessage(responseHandler);
+                        break;
+                    case MSG_FAILURE:
+                        UnpackFailureMessage(responseHandler);
+                        break;
+                    case MSG_IGNORED:
+                        UnpackIgnoredMessage(responseHandler);
+                        break;
+                    default:
+                        throw new IOException("Unknown message type: " + type);
+                }
+                UnPackMessageTail();
+            }
+
+            public Task ReadAsync(IMessageResponseHandler responseHandler)
+            {
+                aaa_unpacker.UnpackStructHeaderAsync();
                 var type = _unpacker.UnpackStructSignature();
 
                 switch (type)
@@ -331,6 +357,10 @@ namespace Neo4j.Driver
                 _outputStream.Flush();
             }
 
+            public async Task FlushAsync()
+            {
+                await _outputStream.FlushAsync();
+            }
             private void PackMessageTail()
             {
                 _outputStream.WriteMessageTail();

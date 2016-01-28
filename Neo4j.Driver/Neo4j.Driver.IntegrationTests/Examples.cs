@@ -16,6 +16,7 @@
 //  limitations under the License.
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 //tag::minimal-example-import[]
 using Neo4j.Driver;
 //end::minimal-example-import[]
@@ -55,6 +56,23 @@ namespace Examples
             session.Dispose();
             driver.Dispose();
             //end::minimal-example[]
+        }
+
+        [Fact]
+        public async Task MinimalAsyncExample()
+        {
+            using (var driver = GraphDatabase.Driver("bolt://localhost:7687"))
+            using (var session = driver.SessionAsync())
+            {
+
+                await session.RunAsync("CREATE (neo:Person {name:'Neo', age:23})");
+
+                var result = await session.RunAsync("MATCH (p:Person) WHERE p.name = 'Neo' RETURN p.age");
+                while (result.Next())
+                {
+                    output.WriteLine($"Neo is {result.Value("p.age")} years old.");
+                }
+            }
         }
 
         [Fact]

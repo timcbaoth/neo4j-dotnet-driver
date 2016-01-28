@@ -16,12 +16,14 @@
 //  limitations under the License.
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Neo4j.Driver.Internal.result;
 
 namespace Neo4j.Driver
 {
     public interface IConnection : IDisposable
     {
+        Task SyncAsync();
         void Sync();
         void Run(ResultBuilder resultBuilder, string statement, IDictionary<string, object> statementParameters = null);
         void PullAll(ResultBuilder resultBuilder);

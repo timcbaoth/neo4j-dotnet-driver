@@ -39,6 +39,7 @@
     <Compile Include="Exceptions\Neo4jException.cs" />
     <Compile Include="Exceptions\Throw.cs" />
     <Compile Include="Extensions\Extensions.cs" />
+    <Compile Include="Helpers\AsyncHelpers.cs" />
     <Compile Include="INotification.cs" />
     <Compile Include="Internal\Connector\IInputStream.cs" />
     <Compile Include="Internal\Connector\IOutputStream.cs" />

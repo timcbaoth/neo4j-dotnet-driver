@@ -15,6 +15,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Neo4j.Driver
 {
@@ -27,8 +28,12 @@ namespace Neo4j.Driver
 
         public static int Read(this Stream stream, byte[] bytes)
         {
-//            while()
             return stream.Read(bytes, 0, bytes.Length);
+        }
+
+        public static async Task<int> ReadAsync(this Stream stream, byte[] bytes)
+        {
+            return await stream.ReadAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
         }
     }
 }

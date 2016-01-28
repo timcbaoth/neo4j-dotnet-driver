@@ -25,5 +25,6 @@ namespace Neo4j.Driver
         Task Stop();
         void Send(IEnumerable<IMessage> messages, IMessageResponseHandler responseHandler);
         bool IsOpen { get; }
+        Task SendAsync(IEnumerable<IMessage> messages, IMessageResponseHandler messageHandler);
     }
 }
