@@ -40,6 +40,20 @@ namespace Neo4j.Driver.Tests
             }
 
             [Fact]
+            public void ShouldPrefetch()
+            {
+                var mock = new Mock<IConnection>();
+                mock.Setup(x => x.IsOpen).Returns(true);
+                var pool = new SessionPool(null, TestUri, Config.DefaultConfig, mock.Object);
+                pool.GetSession(true);
+              //  pool.Prefetch();
+
+                pool.NumberOfAvailableSessions.Should().Be(1);
+                pool.NumberOfInUseSessions.Should().Be(1);
+            }
+
+
+            [Fact]
             public void ShouldThrowExceptionWhenMaximumPoolSizeReached()
             {
                 var mock = new Mock<IConnection>();

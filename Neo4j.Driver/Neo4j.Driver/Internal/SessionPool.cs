@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Neo4j.Driver.Exceptions;
 
 namespace Neo4j.Driver.Internal
@@ -33,6 +34,7 @@ namespace Neo4j.Driver.Internal
 
         internal int NumberOfInUseSessions => _inUseSessions.Count;
         internal int NumberOfAvailableSessions => _availableSessions.Count;
+        private const string MaximumSessionPoolReachedMessage = "Maximum session pool size({0}) reached.";
 
         public SessionPool(ILogger logger, Uri uri, Config config, IConnection connection = null) : base(logger)
         {
@@ -54,7 +56,25 @@ namespace Neo4j.Driver.Internal
             _inUseSessions = inUseDictionary ?? new Dictionary<Guid, IPooledSession>();
         }
 
-        public ISession GetSession()
+        public void Prefetch()
+        {
+            try
+            {
+                if (_availableSessions.Count == 0 && !CantGetSession())
+                {
+                    var id = ((IPooledSession) GetSession()).Id;
+                    Release(id);
+                }
+            }
+            catch(ClientException ex) when (ex.Message == string.Format(MaximumSessionPoolReachedMessage, _maxSessionPoolSize)) { /*Hide Error Purposely*/}
+        }
+
+        public bool CantGetSession()
+        {
+            return _maxSessionPoolSize > Config.InfiniteSessionPoolSize && _currentPoolSize >= _maxSessionPoolSize;
+        }
+
+        public ISession GetSession(bool prefetch = false)
         {
             return TryExecute(() =>
             {
@@ -65,9 +85,9 @@ namespace Neo4j.Driver.Internal
                         session = _availableSessions.Dequeue();
                 }
 
-                if (_maxSessionPoolSize > Config.InfiniteSessionPoolSize && _currentPoolSize >= _maxSessionPoolSize)
+                if (CantGetSession())
                 {
-                    throw new ClientException($"Maximum session pool size ({_maxSessionPoolSize}) reached.");
+                    throw new ClientException(string.Format(MaximumSessionPoolReachedMessage, _maxSessionPoolSize));
                 }
 
                 if (session == null)
@@ -93,6 +113,9 @@ namespace Neo4j.Driver.Internal
                 {
                     _inUseSessions.Add(session.Id, session);
                 }
+
+                Task.Factory.StartNew(Prefetch);
+
                 return session;
             });
         }
