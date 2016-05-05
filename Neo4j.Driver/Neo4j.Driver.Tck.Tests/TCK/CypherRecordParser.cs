@@ -180,7 +180,7 @@ namespace Neo4j.Driver.Tck.Tests.TCK
                 nodes.Add(end);
                 start = end;
             }
-            return new Path(segments, nodes, relationships);
+            return new Path(nodes, relationships);
         }
 
         internal IRelationship ParseRelationship(string input)

@@ -172,7 +172,7 @@ namespace Neo4j.Driver.Internal.Packstream
                     segments[i] = new Segment(prevNode, rel, nextNode);
                     prevNode = nextNode;
                 }
-                return new Path(segments.ToList(), nodes.ToList(),rels.ToList());
+                return new Path(nodes.ToList(),rels.ToList());
             }
 
             private IRelationship UnpackRelationship()

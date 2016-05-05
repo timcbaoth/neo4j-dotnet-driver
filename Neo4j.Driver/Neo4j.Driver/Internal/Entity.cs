@@ -28,18 +28,19 @@ namespace Neo4j.Driver.Internal
         public IReadOnlyDictionary<string, object> Properties { get; }
         public object this[string key] => Properties[key];
 
-        public Node(long id, IReadOnlyList<string> lables, IReadOnlyDictionary<string, object> prop)
+        public Node(long id, IReadOnlyList<string> labels, IReadOnlyDictionary<string, object> properties)
         {
             Id = id;
-            Labels = lables;
-            Properties = prop;
+            Labels = labels;
+            Properties = properties;
         }
 
         public bool Equals(INode other)
         {
-            if (other == null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Equals(Id, other.Id);
+            if (other == null)
+                return false;
+
+            return ReferenceEquals(this, other) || Equals(Id, other.Id);
         }
 
         public override bool Equals(object obj)
@@ -74,9 +75,10 @@ namespace Neo4j.Driver.Internal
 
         public bool Equals(IRelationship other)
         {
-            if (other == null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Equals(Id, other.Id);
+            if (other == null)
+                return false;
+
+            return ReferenceEquals(this, other) || Equals(Id, other.Id);
         }
 
         public override bool Equals(object obj)
@@ -157,17 +159,14 @@ namespace Neo4j.Driver.Internal
 
     internal class Path : IPath
     {
-        private readonly IReadOnlyList<ISegment> _segments;
-
         public INode Start => Nodes.First();
         public INode End => Nodes.Last();
         public IReadOnlyList<INode> Nodes { get; }
         public IReadOnlyList<IRelationship> Relationships { get; }
 
-        public Path(IReadOnlyList<ISegment> segments, IReadOnlyList<INode> nodes,
+        public Path(IReadOnlyList<INode> nodes,
             IReadOnlyList<IRelationship> relationships)
         {
-            _segments = segments;
             Nodes = nodes;
             Relationships = relationships;
         }

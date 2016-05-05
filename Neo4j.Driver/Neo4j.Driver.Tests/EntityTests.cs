@@ -78,11 +78,9 @@ namespace Neo4j.Driver.Tests
             [Fact]
             public void ShouldEqualIfIdEquals()
             {
-                var path1 = new Path(null, 
-                    new []{ new Node(123, new []{"buibui"}, null) },
+                var path1 = new Path(new []{ new Node(123, new []{"buibui"}, null) },
                     new []{ new Relationship(1, 000, 111, "buibui", null)});
-                var path2 = new Path(null, 
-                    new[] { new Node(123, new[] { "lala" }, null) },
+                var path2 = new Path(new[] { new Node(123, new[] { "lala" }, null) },
                     new []{ new Relationship(1, 222, 333, "lala", null)});
                 path1.Equals(path2).Should().BeTrue();
                 Equals(path1, path2).Should().BeTrue();

@@ -14,6 +14,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 using System.Collections.Generic;
 using System.Linq;
 using Neo4j.Driver.V1;
@@ -25,20 +26,18 @@ namespace Neo4j.Driver.Internal.Result
         public object this[int index] => Values[Values.Keys.ToList()[index]];
         public object this[string key] => Values[key];
 
-        public IReadOnlyDictionary<string, object> Values { get; }       
+        public IReadOnlyDictionary<string, object> Values { get; }
         public IReadOnlyList<string> Keys { get; }
 
         public Record(string[] keys, object[] values)
         {
             Throw.ArgumentException.IfNotEqual(keys.Length, values.Length, nameof(keys), nameof(values));
 
-            var valueKeys = new Dictionary<string, object>();
-
-            for (var i =0; i < keys.Length; i ++)
-            {
-                valueKeys.Add( keys[i], values[i]);
-            }
-            Values = valueKeys;
+            var valueBykey = keys
+                .Zip(values, (k, v) => new { Key = k, Value = v })
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
+            
+            Values = valueBykey;
             Keys = new List<string>(keys);
         }
     }

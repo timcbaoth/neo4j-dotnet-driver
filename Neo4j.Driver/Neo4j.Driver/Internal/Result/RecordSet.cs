@@ -47,7 +47,6 @@ namespace Neo4j.Driver.Internal.Result
                 }
 
                 yield return _records[Position++];
-//                Position++;
             }
         }
 

@@ -56,7 +56,7 @@ namespace Neo4j.Driver.Internal
             public static void If(Func<bool> func, object first, object second, string firstParam, string secondParam)
             {
                 if(func())
-                throw new System.ArgumentException($"{firstParam} ({first}) did not equal {secondParam} ({second})");
+                    throw new System.ArgumentException($"{firstParam} ({first}) did not equal {secondParam} ({second})");
             }
         }
 

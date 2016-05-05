@@ -296,9 +296,7 @@ namespace Neo4j.Driver.Tests
             [Fact]
             public void ShouldConvertToPath()
             {
-                object obj = new Path(
-                    new List<ISegment>(),
-                    new List<INode>
+                object obj = new Path(new List<INode>
                     {
                         new Node(
                             1L,
